@@ -1,0 +1,12 @@
+
+[workspace]
+members = [
+    "ssz",
+    "ssz_derive",
+    "serde_utils",
+    "eth2_hashing",
+    "tree_hash",
+    "tree_hash_derive",
+    "ssz_types",
+    # "bls",
+]
