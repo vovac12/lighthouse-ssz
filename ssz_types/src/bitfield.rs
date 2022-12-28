@@ -2,9 +2,11 @@
 use crate::prelude::*;
 use crate::tree_hash::bitfield_bytes_tree_hash_root;
 use crate::Error;
+use codec::{Decode as ScaleDecode, Encode as ScaleEncode};
 use core::marker::PhantomData;
 use derivative::Derivative;
 use eth2_serde_utils::hex::{encode as hex_encode, PrefixedHexVisitor};
+use scale_info::TypeInfo;
 use serde::de::{Deserialize, Deserializer};
 use serde::ser::{Serialize, Serializer};
 use smallvec::{smallvec, SmallVec, ToSmallVec};
@@ -103,6 +105,60 @@ pub struct Bitfield<T> {
     bytes: SmallVec<[u8; SMALLVEC_LEN]>,
     len: usize,
     _phantom: PhantomData<T>,
+}
+
+impl<N: Unsigned> ScaleDecode for Bitfield<Fixed<N>> {
+    fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
+        let bytes: Vec<u8> = ScaleDecode::decode(input)?;
+        Self::from_ssz_bytes(&bytes).map_err(|_| codec::Error::from("Invalid bitfield length"))
+    }
+}
+
+impl<N: Unsigned> ScaleEncode for Bitfield<Fixed<N>> {
+    fn encode_to<T: codec::Output + ?Sized>(&self, dest: &mut T) {
+        let bytes = self.as_ssz_bytes();
+        bytes.encode_to(dest);
+    }
+
+    fn size_hint(&self) -> usize {
+        let bytes = self.as_ssz_bytes();
+        bytes.size_hint()
+    }
+}
+
+impl<N: Unsigned> TypeInfo for Bitfield<Fixed<N>> {
+    type Identity = Self;
+
+    fn type_info() -> scale_info::Type {
+        Vec::<u8>::type_info()
+    }
+}
+
+impl<N: Unsigned> ScaleDecode for Bitfield<Variable<N>> {
+    fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
+        let bytes: Vec<u8> = ScaleDecode::decode(input)?;
+        Self::from_ssz_bytes(&bytes).map_err(|_| codec::Error::from("Invalid bitfield length"))
+    }
+}
+
+impl<N: Unsigned> ScaleEncode for Bitfield<Variable<N>> {
+    fn encode_to<T: codec::Output + ?Sized>(&self, dest: &mut T) {
+        let bytes = self.as_ssz_bytes();
+        bytes.encode_to(dest);
+    }
+
+    fn size_hint(&self) -> usize {
+        let bytes = self.as_ssz_bytes();
+        bytes.size_hint()
+    }
+}
+
+impl<N: Unsigned> TypeInfo for Bitfield<Variable<N>> {
+    type Identity = Self;
+
+    fn type_info() -> scale_info::Type {
+        Vec::<u8>::type_info()
+    }
 }
 
 impl<N: Unsigned + Clone> Bitfield<Variable<N>> {

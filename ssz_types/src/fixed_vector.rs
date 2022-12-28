@@ -2,10 +2,12 @@
 use crate::prelude::*;
 use crate::tree_hash::vec_tree_hash_root;
 use crate::Error;
+use codec::{Decode as ScaleDecode, Encode as ScaleEncode};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut, Index, IndexMut};
 use core::slice::SliceIndex;
 use derivative::Derivative;
+use scale_info::TypeInfo;
 use serde::{Deserialize, Serialize};
 use tree_hash::Hash256;
 use typenum::Unsigned;
@@ -47,12 +49,19 @@ pub use typenum;
 /// let long: FixedVector<_, typenum::U5> = FixedVector::from(base);
 /// assert_eq!(&long[..], &[1, 2, 3, 4, 0]);
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize, Derivative)]
+#[derive(Debug, Clone, Serialize, Deserialize, Derivative, ScaleEncode, TypeInfo)]
 #[derivative(PartialEq, Hash(bound = "T: core::hash::Hash"))]
 #[serde(transparent)]
 pub struct FixedVector<T, N> {
     vec: Vec<T>,
     _phantom: PhantomData<N>,
+}
+
+impl<T: ScaleDecode, N: Unsigned> ScaleDecode for FixedVector<T, N> {
+    fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
+        let vec: Vec<T> = ScaleDecode::decode(input)?;
+        Self::new(vec).map_err(|_| "Invalid length for FixedVector".into())
+    }
 }
 
 impl<T, N: Unsigned> FixedVector<T, N> {
