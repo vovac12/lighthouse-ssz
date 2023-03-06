@@ -2,7 +2,7 @@ use super::*;
 use core::num::NonZeroUsize;
 use ethereum_types::{H160, H256, U128, U256};
 use smallvec::SmallVec;
-#[cfg(feature = "std")]
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
 macro_rules! impl_encodable_for_uint {
@@ -231,7 +231,6 @@ impl<T: Encode> Encode for Option<T> {
     }
 }
 
-#[cfg(feature = "std")]
 impl<T: Encode> Encode for Arc<T> {
     fn is_ssz_fixed_len() -> bool {
         T::is_ssz_fixed_len()
@@ -512,6 +511,7 @@ macro_rules! impl_encodable_for_u8_array {
 
 impl_encodable_for_u8_array!(4);
 impl_encodable_for_u8_array!(32);
+impl_encodable_for_u8_array!(48);
 
 #[cfg(test)]
 mod tests {

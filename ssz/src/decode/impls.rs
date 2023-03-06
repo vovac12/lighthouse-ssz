@@ -5,7 +5,6 @@ use core::num::NonZeroUsize;
 use ethereum_types::{H160, H256, U128, U256};
 use itertools::process_results;
 use smallvec::SmallVec;
-#[cfg(feature = "std")]
 use std::sync::Arc;
 
 macro_rules! impl_decodable_for_uint {
@@ -260,7 +259,6 @@ impl<T: Decode> Decode for Option<T> {
     }
 }
 
-#[cfg(feature = "std")]
 impl<T: Decode> Decode for Arc<T> {
     fn is_ssz_fixed_len() -> bool {
         T::is_ssz_fixed_len()
@@ -389,6 +387,7 @@ macro_rules! impl_decodable_for_u8_array {
 
 impl_decodable_for_u8_array!(4);
 impl_decodable_for_u8_array!(32);
+impl_decodable_for_u8_array!(48);
 
 macro_rules! impl_for_vec {
     ($type: ty, $max_len: expr) => {

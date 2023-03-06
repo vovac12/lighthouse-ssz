@@ -48,11 +48,14 @@ pub mod prelude {
     pub use alloc::string::String;
     pub use alloc::string::ToString;
     pub use alloc::vec;
+    pub use alloc::vec::IntoIter as VecIntoIter;
     pub use alloc::vec::Vec;
 }
 
 #[cfg(feature = "std")]
-pub mod prelude {}
+pub mod prelude {
+    pub use std::vec::IntoIter as VecIntoIter;
+}
 
 #[macro_use]
 mod bitfield;

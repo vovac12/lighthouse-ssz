@@ -20,6 +20,6 @@ wasm-bindgen-test = "0.3.18"
 
 [features]
 default = ["zero_hash_cache", "detect-cpufeatures"]
-zero_hash_cache = ["lazy_static"]
+zero_hash_cache = ["lazy_static", "lazy_static/spin_no_std"]
 detect-cpufeatures = ["cpufeatures"]
 std = []

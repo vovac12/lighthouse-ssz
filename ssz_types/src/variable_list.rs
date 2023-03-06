@@ -1,4 +1,3 @@
-#[cfg(not(feature = "std"))]
 use crate::prelude::*;
 use crate::tree_hash::vec_tree_hash_root;
 use crate::Error;
@@ -187,6 +186,15 @@ impl<'a, T, N: Unsigned> IntoIterator for &'a VariableList<T, N> {
     }
 }
 
+impl<T, N: Unsigned> IntoIterator for VariableList<T, N> {
+    type Item = T;
+    type IntoIter = VecIntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.vec.into_iter()
+    }
+}
+
 impl<T, N: Unsigned> tree_hash::TreeHash for VariableList<T, N>
 where
     T: tree_hash::TreeHash,
@@ -284,7 +292,7 @@ impl<'a, T: arbitrary::Arbitrary<'a>, N: 'static + Unsigned> arbitrary::Arbitrar
         for _ in 0..size {
             vec.push(<T>::arbitrary(u)?);
         }
-        Ok(Self::new(vec).map_err(|_| arbitrary::Error::IncorrectFormat)?)
+        Self::new(vec).map_err(|_| arbitrary::Error::IncorrectFormat)
     }
 }
 
