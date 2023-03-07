@@ -8,5 +8,7 @@ members = [
     "tree_hash",
     "tree_hash_derive",
     "ssz_types",
-    "bls",
+    # "bls",
 ]
+
+resolver = "2"

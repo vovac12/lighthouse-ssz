@@ -2,8 +2,6 @@ use super::*;
 use core::num::NonZeroUsize;
 use ethereum_types::{H160, H256, U128, U256};
 use smallvec::SmallVec;
-use std::collections::{BTreeMap, BTreeSet};
-use std::sync::Arc;
 
 macro_rules! impl_encodable_for_uint {
     ($type: ident, $bit_size: expr) => {

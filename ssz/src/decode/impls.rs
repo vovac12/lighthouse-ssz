@@ -5,7 +5,6 @@ use core::num::NonZeroUsize;
 use ethereum_types::{H160, H256, U128, U256};
 use itertools::process_results;
 use smallvec::SmallVec;
-use std::sync::Arc;
 
 macro_rules! impl_decodable_for_uint {
     ($type: ident, $bit_size: expr) => {

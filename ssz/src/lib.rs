@@ -45,6 +45,7 @@ pub mod prelude {
     pub use alloc::format;
     pub use alloc::string::String;
     pub use alloc::string::ToString;
+    pub use alloc::sync::Arc;
     pub use alloc::vec;
     pub use alloc::vec::Vec;
 }
@@ -53,6 +54,7 @@ pub mod prelude {
 pub mod prelude {
     pub use std::collections::{BTreeMap, BTreeSet};
     pub use std::string::String;
+    pub use std::sync::Arc;
     pub use std::vec::Vec;
 }
 

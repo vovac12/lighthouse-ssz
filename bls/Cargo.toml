@@ -13,7 +13,7 @@ serde = { version = "1.0.116", features = ["derive"] }
 eth2_serde_utils = { path = "../serde_utils", default-features = false }
 hex = "0.4.2"
 eth2_hashing = { path = "../eth2_hashing", default-features = false }
-ethereum-types = "0.14.1"
+ethereum-types = { version = "0.14.1", default-features = false }
 arbitrary = { version = "1.0", features = ["derive"], optional = true }
 zeroize = { version = "1.4.2", features = ["zeroize_derive"] }
 blst = { version = "0.3.3", optional = true }
@@ -26,7 +26,8 @@ std = [
     "eth2_serde_utils/std",
     "eth2_hashing/std", 
     "tree_hash/std", 
-    "rand"
+    "rand",
+    "ethereum-types/std"
 ]
 fake_crypto = []
 milagro = ["milagro_bls"]
