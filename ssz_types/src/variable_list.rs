@@ -53,6 +53,7 @@ pub use typenum;
 #[derive(Debug, Clone, Serialize, Deserialize, Derivative, ScaleEncode, TypeInfo)]
 #[derivative(PartialEq, Eq, Hash(bound = "T: core::hash::Hash"))]
 #[serde(transparent)]
+#[scale_info(skip_type_params(N))]
 pub struct VariableList<T, N> {
     vec: Vec<T>,
     _phantom: PhantomData<N>,
