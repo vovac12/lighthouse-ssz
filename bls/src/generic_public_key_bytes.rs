@@ -21,6 +21,7 @@ use tree_hash::TreeHash;
 /// - Lazily verifying a serialized public key.
 /// - Storing some bytes that are actually invalid (required in the case of a `Deposit` message).
 #[derive(codec::Encode, codec::Decode, codec::MaxEncodedLen, scale_info::TypeInfo)]
+#[scale_info(skip_type_params(T))]
 pub struct GenericPublicKeyBytes<Pub> {
     bytes: [u8; PUBLIC_KEY_BYTES_LEN],
     _phantom: PhantomData<Pub>,

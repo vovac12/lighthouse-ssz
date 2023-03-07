@@ -133,7 +133,7 @@ impl<N: Unsigned> ScaleEncode for Bitfield<Fixed<N>> {
 }
 
 impl<N: Unsigned> TypeInfo for Bitfield<Fixed<N>> {
-    type Identity = Self;
+    type Identity = [u8];
 
     fn type_info() -> scale_info::Type {
         Vec::<u8>::type_info()

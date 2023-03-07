@@ -22,6 +22,7 @@ use tree_hash::TreeHash;
 /// - Lazily verifying a serialized signature.
 /// - Storing some bytes that are actually invalid (required in the case of a `Deposit` message).
 #[derive(Clone, codec::Encode, codec::Decode, codec::MaxEncodedLen, scale_info::TypeInfo)]
+#[scale_info(skip_type_params(T))]
 pub struct GenericSignatureBytes<Pub, Sig> {
     bytes: [u8; SIGNATURE_BYTES_LEN],
     _phantom_public_key: PhantomData<Pub>,
