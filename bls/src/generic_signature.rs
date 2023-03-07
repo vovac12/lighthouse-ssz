@@ -148,6 +148,33 @@ where
     }
 }
 
+impl<PublicKey, T: TSignature<PublicKey>> codec::Encode for GenericSignature<PublicKey, T> {
+    fn encode(&self) -> Vec<u8> {
+        self.serialize().encode()
+    }
+}
+
+impl<PublicKey, T: TSignature<PublicKey>> codec::MaxEncodedLen for GenericSignature<PublicKey, T> {
+    fn max_encoded_len() -> usize {
+        SIGNATURE_BYTES_LEN
+    }
+}
+
+impl<PublicKey, T: TSignature<PublicKey>> codec::Decode for GenericSignature<PublicKey, T> {
+    fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
+        let bytes = <[u8; SIGNATURE_BYTES_LEN]>::decode(input)?;
+        Self::deserialize(&bytes).map_err(|_| codec::Error::from("Can't decode BLS Signature"))
+    }
+}
+
+impl<PublicKey, T: TSignature<PublicKey>> scale_info::TypeInfo for GenericSignature<PublicKey, T> {
+    type Identity = [u8];
+
+    fn type_info() -> scale_info::Type {
+        <[u8; SIGNATURE_BYTES_LEN]>::type_info()
+    }
+}
+
 impl<PublicKey, T: TSignature<PublicKey>> Encode for GenericSignature<PublicKey, T> {
     impl_ssz_encode!(SIGNATURE_BYTES_LEN);
 }

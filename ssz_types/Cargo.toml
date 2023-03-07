@@ -19,7 +19,7 @@ arbitrary = { version = "1.0", features = ["derive"], optional = true }
 derivative = { version = "2.1.1", features = ["use_core"] }
 smallvec = "1.8.0"
 codec = { package = "parity-scale-codec", version = "3", default-features = false, features = [
-    "derive",
+    "derive", "max-encoded-len"
 ] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 

@@ -2,7 +2,7 @@
 use crate::prelude::*;
 use crate::tree_hash::vec_tree_hash_root;
 use crate::Error;
-use codec::{Decode as ScaleDecode, Encode as ScaleEncode};
+use codec::{Decode as ScaleDecode, Encode as ScaleEncode, MaxEncodedLen};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut, Index, IndexMut};
 use core::slice::SliceIndex;
@@ -61,6 +61,15 @@ impl<T: ScaleDecode, N: Unsigned> ScaleDecode for FixedVector<T, N> {
     fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
         let vec: Vec<T> = ScaleDecode::decode(input)?;
         Self::new(vec).map_err(|_| "Invalid length for FixedVector".into())
+    }
+}
+
+impl<T: MaxEncodedLen, N: Unsigned> MaxEncodedLen for FixedVector<T, N> {
+    fn max_encoded_len() -> usize {
+        let max_len = N::to_u32();
+        codec::Compact(max_len)
+            .encoded_size()
+            .saturating_add(T::max_encoded_len().saturating_mul(max_len as usize))
     }
 }
 

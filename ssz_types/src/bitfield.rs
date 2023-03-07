@@ -2,7 +2,7 @@
 use crate::prelude::*;
 use crate::tree_hash::bitfield_bytes_tree_hash_root;
 use crate::Error;
-use codec::{Decode as ScaleDecode, Encode as ScaleEncode};
+use codec::{Decode as ScaleDecode, Encode as ScaleEncode, MaxEncodedLen};
 use core::marker::PhantomData;
 use derivative::Derivative;
 use eth2_serde_utils::hex::{encode as hex_encode, PrefixedHexVisitor};
@@ -114,6 +114,12 @@ impl<N: Unsigned> ScaleDecode for Bitfield<Fixed<N>> {
     }
 }
 
+impl<N: Unsigned> MaxEncodedLen for Bitfield<Fixed<N>> {
+    fn max_encoded_len() -> usize {
+        N::to_usize()
+    }
+}
+
 impl<N: Unsigned> ScaleEncode for Bitfield<Fixed<N>> {
     fn encode_to<T: codec::Output + ?Sized>(&self, dest: &mut T) {
         let bytes = self.as_ssz_bytes();
@@ -138,6 +144,12 @@ impl<N: Unsigned> ScaleDecode for Bitfield<Variable<N>> {
     fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
         let bytes: Vec<u8> = ScaleDecode::decode(input)?;
         Self::from_ssz_bytes(&bytes).map_err(|_| codec::Error::from("Invalid bitfield length"))
+    }
+}
+
+impl<N: Unsigned> MaxEncodedLen for Bitfield<Variable<N>> {
+    fn max_encoded_len() -> usize {
+        N::to_usize()
     }
 }
 

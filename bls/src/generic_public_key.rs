@@ -94,6 +94,33 @@ impl<Pub: TPublicKey> Hash for GenericPublicKey<Pub> {
     }
 }
 
+impl<Pub: TPublicKey> codec::Encode for GenericPublicKey<Pub> {
+    fn encode(&self) -> Vec<u8> {
+        self.serialize().encode()
+    }
+}
+
+impl<Pub: TPublicKey> codec::MaxEncodedLen for GenericPublicKey<Pub> {
+    fn max_encoded_len() -> usize {
+        PUBLIC_KEY_BYTES_LEN
+    }
+}
+
+impl<Pub: TPublicKey> codec::Decode for GenericPublicKey<Pub> {
+    fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
+        let bytes = <[u8; PUBLIC_KEY_BYTES_LEN]>::decode(input)?;
+        Self::deserialize(&bytes).map_err(|_| codec::Error::from("Can't decode BLS Public key"))
+    }
+}
+
+impl<Pub: TPublicKey> scale_info::TypeInfo for GenericPublicKey<Pub> {
+    type Identity = [u8];
+
+    fn type_info() -> scale_info::Type {
+        <[u8; PUBLIC_KEY_BYTES_LEN]>::type_info()
+    }
+}
+
 impl<Pub: TPublicKey> Encode for GenericPublicKey<Pub> {
     impl_ssz_encode!(PUBLIC_KEY_BYTES_LEN);
 }

@@ -243,6 +243,52 @@ where
     }
 }
 
+impl<Pub, AggPub, Sig, AggSig> codec::Encode for GenericAggregateSignature<Pub, AggPub, Sig, AggSig>
+where
+    Sig: TSignature<Pub>,
+    AggSig: TAggregateSignature<Pub, AggPub, Sig>,
+{
+    fn encode(&self) -> Vec<u8> {
+        self.serialize().encode()
+    }
+}
+
+impl<Pub, AggPub, Sig, AggSig> codec::MaxEncodedLen
+    for GenericAggregateSignature<Pub, AggPub, Sig, AggSig>
+where
+    Sig: TSignature<Pub>,
+    AggSig: TAggregateSignature<Pub, AggPub, Sig>,
+{
+    fn max_encoded_len() -> usize {
+        SIGNATURE_BYTES_LEN
+    }
+}
+
+impl<Pub, AggPub, Sig, AggSig> codec::Decode for GenericAggregateSignature<Pub, AggPub, Sig, AggSig>
+where
+    Sig: TSignature<Pub>,
+    AggSig: TAggregateSignature<Pub, AggPub, Sig>,
+{
+    fn decode<I: codec::Input>(input: &mut I) -> Result<Self, codec::Error> {
+        let bytes = <[u8; SIGNATURE_BYTES_LEN]>::decode(input)?;
+        Self::deserialize(&bytes)
+            .map_err(|_| codec::Error::from("Can't decode BLS Aggregate Signature"))
+    }
+}
+
+impl<Pub, AggPub, Sig, AggSig> scale_info::TypeInfo
+    for GenericAggregateSignature<Pub, AggPub, Sig, AggSig>
+where
+    Sig: TSignature<Pub>,
+    AggSig: TAggregateSignature<Pub, AggPub, Sig>,
+{
+    type Identity = [u8];
+
+    fn type_info() -> scale_info::Type {
+        <[u8; SIGNATURE_BYTES_LEN]>::type_info()
+    }
+}
+
 impl<Pub, AggPub, Sig, AggSig> Encode for GenericAggregateSignature<Pub, AggPub, Sig, AggSig>
 where
     Sig: TSignature<Pub>,

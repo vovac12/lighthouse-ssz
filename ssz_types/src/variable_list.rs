@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::tree_hash::vec_tree_hash_root;
 use crate::Error;
-use codec::{Decode as ScaleDecode, Encode as ScaleEncode};
+use codec::{Decode as ScaleDecode, Encode as ScaleEncode, MaxEncodedLen};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut, Index, IndexMut};
 use core::slice::SliceIndex;
@@ -56,6 +56,15 @@ pub use typenum;
 pub struct VariableList<T, N> {
     vec: Vec<T>,
     _phantom: PhantomData<N>,
+}
+
+impl<T: MaxEncodedLen, N: Unsigned> MaxEncodedLen for VariableList<T, N> {
+    fn max_encoded_len() -> usize {
+        let max_len = N::to_u32();
+        codec::Compact(max_len)
+            .encoded_size()
+            .saturating_add(T::max_encoded_len().saturating_mul(max_len as usize))
+    }
 }
 
 impl<T: ScaleDecode, N: Unsigned> ScaleDecode for VariableList<T, N> {
