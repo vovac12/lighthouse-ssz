@@ -9,9 +9,9 @@ eth2_ssz = { path = "../ssz", default-features = false }
 tree_hash = { path = "../tree_hash", default-features = false }
 milagro_bls = { git = "https://github.com/sigp/milagro_bls", tag = "v1.5.1", default-features = false, optional = true }
 rand = {version = "0.8.5", optional = true}
-serde = { version = "1.0.116", features = ["derive"] }
+serde = { version = "1.0.116", features = ["derive"], default-features = false }
 eth2_serde_utils = { path = "../serde_utils", default-features = false }
-hex = "0.4.2"
+hex = { version = "0.4.2", default-features = false, features = ["alloc"] }
 eth2_hashing = { path = "../eth2_hashing", default-features = false }
 ethereum-types = { version = "0.14.1", default-features = false }
 arbitrary = { version = "1.0", features = ["derive"], optional = true }
@@ -33,7 +33,9 @@ std = [
     "rand",
     "ethereum-types/std",
     "codec/std",
-    "scale-info/std"
+    "scale-info/std",
+    "hex/std",
+    "serde/std",
 ]
 fake_crypto = []
 milagro = ["milagro_bls"]
