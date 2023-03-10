@@ -5,7 +5,7 @@ version = 3
 [[package]]
 name = "amcl"
 version = "0.3.0"
-source = "git+https://github.com/sigp/milagro_bls?tag=v1.5.1#d3fc0a40cfe8b72ccda46ba050ee6786a59ce753"
+source = "git+https://github.com/Snowfork/milagro_bls?rev=bc2b5b5e8d48b7e2e1bfaa56dc2d93e13cb32095#bc2b5b5e8d48b7e2e1bfaa56dc2d93e13cb32095"
 
 [[package]]
 name = "arbitrary"
@@ -462,8 +462,8 @@ dependencies = [
 
 [[package]]
 name = "milagro_bls"
-version = "1.5.1"
-source = "git+https://github.com/sigp/milagro_bls?tag=v1.5.1#d3fc0a40cfe8b72ccda46ba050ee6786a59ce753"
+version = "1.5.0"
+source = "git+https://github.com/Snowfork/milagro_bls?rev=bc2b5b5e8d48b7e2e1bfaa56dc2d93e13cb32095#bc2b5b5e8d48b7e2e1bfaa56dc2d93e13cb32095"
 dependencies = [
  "amcl",
  "rand",
