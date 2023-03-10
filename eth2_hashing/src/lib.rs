@@ -17,8 +17,8 @@ pub use alloc::vec;
 #[cfg(not(feature = "std"))]
 pub use alloc::vec::Vec;
 
-pub use self::DynamicContext as Context;
 use sha2::Digest;
+pub use sha2::Sha256 as Context;
 
 #[cfg(feature = "zero_hash_cache")]
 use lazy_static::lazy_static;
@@ -28,22 +28,22 @@ pub const HASH_LEN: usize = 32;
 
 /// Returns the digest of `input` using the best available implementation.
 pub fn hash(input: &[u8]) -> Vec<u8> {
-    DynamicImpl::best().hash(input)
+    Sha2CrateImpl.hash(input)
 }
 
 /// Hash function returning a fixed-size array (to save on allocations).
 ///
 /// Uses the best available implementation based on CPU features.
 pub fn hash_fixed(input: &[u8]) -> [u8; HASH_LEN] {
-    DynamicImpl::best().hash_fixed(input)
+    Sha2CrateImpl.hash_fixed(input)
 }
 
 /// Compute the hash of two slices concatenated.
 pub fn hash32_concat(h1: &[u8], h2: &[u8]) -> [u8; 32] {
-    let mut ctxt = DynamicContext::new();
-    ctxt.update(h1);
-    ctxt.update(h2);
-    ctxt.finalize()
+    let mut ctxt = <Context as Sha256Context>::new();
+    Sha256Context::update(&mut ctxt, h1);
+    Sha256Context::update(&mut ctxt, h2);
+    Sha256Context::finalize(ctxt)
 }
 
 /// Context trait for abstracting over implementation contexts.
@@ -90,125 +90,6 @@ impl Sha256 for Sha2CrateImpl {
 
     fn hash_fixed(&self, input: &[u8]) -> [u8; HASH_LEN] {
         Self::Context::digest(input).into()
-    }
-}
-
-/// Implementation of SHA256 using the `ring` crate (fastest on CPUs without SHA extensions).
-pub struct RingImpl;
-
-impl Sha256Context for ring::digest::Context {
-    fn new() -> Self {
-        Self::new(&ring::digest::SHA256)
-    }
-
-    fn update(&mut self, bytes: &[u8]) {
-        self.update(bytes)
-    }
-
-    fn finalize(self) -> [u8; HASH_LEN] {
-        let mut output = [0; HASH_LEN];
-        output.copy_from_slice(self.finish().as_ref());
-        output
-    }
-}
-
-impl Sha256 for RingImpl {
-    type Context = ring::digest::Context;
-
-    fn hash(&self, input: &[u8]) -> Vec<u8> {
-        ring::digest::digest(&ring::digest::SHA256, input)
-            .as_ref()
-            .into()
-    }
-
-    fn hash_fixed(&self, input: &[u8]) -> [u8; HASH_LEN] {
-        let mut ctxt = Self::Context::new(&ring::digest::SHA256);
-        ctxt.update(input);
-        ctxt.finalize()
-    }
-}
-
-/// Default dynamic implementation that switches between available implementations.
-pub enum DynamicImpl {
-    Sha2,
-    Ring,
-}
-
-// Runtime latch for detecting the availability of SHA extensions on x86_64.
-//
-// Inspired by the runtime switch within the `sha2` crate itself.
-#[cfg(all(feature = "detect-cpufeatures", target_arch = "x86_64"))]
-cpufeatures::new!(x86_sha_extensions, "sha", "sse2", "ssse3", "sse4.1");
-
-#[inline(always)]
-pub fn have_sha_extensions() -> bool {
-    #[cfg(all(feature = "detect-cpufeatures", target_arch = "x86_64"))]
-    return x86_sha_extensions::get();
-
-    #[cfg(not(all(feature = "detect-cpufeatures", target_arch = "x86_64")))]
-    return false;
-}
-
-impl DynamicImpl {
-    /// Choose the best available implementation based on the currently executing CPU.
-    #[inline(always)]
-    pub fn best() -> Self {
-        if have_sha_extensions() {
-            Self::Sha2
-        } else {
-            Self::Ring
-        }
-    }
-}
-
-impl Sha256 for DynamicImpl {
-    type Context = DynamicContext;
-
-    #[inline(always)]
-    fn hash(&self, input: &[u8]) -> Vec<u8> {
-        match self {
-            Self::Sha2 => Sha2CrateImpl.hash(input),
-            Self::Ring => RingImpl.hash(input),
-        }
-    }
-
-    #[inline(always)]
-    fn hash_fixed(&self, input: &[u8]) -> [u8; HASH_LEN] {
-        match self {
-            Self::Sha2 => Sha2CrateImpl.hash_fixed(input),
-            Self::Ring => RingImpl.hash_fixed(input),
-        }
-    }
-}
-
-/// Context encapsulating all implemenation contexts.
-///
-/// This enum ends up being 8 bytes larger than the largest inner context.
-pub enum DynamicContext {
-    Sha2(sha2::Sha256),
-    Ring(ring::digest::Context),
-}
-
-impl Sha256Context for DynamicContext {
-    fn new() -> Self {
-        match DynamicImpl::best() {
-            DynamicImpl::Sha2 => Self::Sha2(Sha256Context::new()),
-            DynamicImpl::Ring => Self::Ring(Sha256Context::new()),
-        }
-    }
-
-    fn update(&mut self, bytes: &[u8]) {
-        match self {
-            Self::Sha2(ctxt) => Sha256Context::update(ctxt, bytes),
-            Self::Ring(ctxt) => Sha256Context::update(ctxt, bytes),
-        }
-    }
-
-    fn finalize(self) -> [u8; HASH_LEN] {
-        match self {
-            Self::Sha2(ctxt) => Sha256Context::finalize(ctxt),
-            Self::Ring(ctxt) => Sha256Context::finalize(ctxt),
-        }
     }
 }
 
